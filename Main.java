@@ -635,6 +635,10 @@ public class Main
 						currentToken += (char)currentChar;
 						readChar();
 					}
+					else
+					{
+						System.out.println(currentToken + " is unexpected");
+					}
 				}
 				else if(currentChar == 62) //62 = '>'
 				{

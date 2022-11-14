@@ -13,7 +13,7 @@ public class Main
 	static TokenObject currentToken;
 	static boolean unexpected = false;
 	static String file;
-	static Node currentParent = null;
+	//static Node currentParent = null;
 	
 	public static void main(String[] args)
 	{
@@ -68,13 +68,14 @@ public class Main
 			*/
 			
 			unexpected = false;
-			currentParent = null;
+			//currentParent = null;
 		}
 		while(retry.equals("y"));
 		
 		input.close();
 	}
 	
+	/*
 	static void createIdNode(TokenObject currentToken, Node parentNode)
 	{
 		Node node = new Node(currentToken.kind, parentNode);
@@ -88,6 +89,7 @@ public class Main
 		Node node = new Node(currentToken.kind, parentNode);
 		parentNode.addChild(node);
 	}
+	*/
 	
 	// next() gets the next token from the input file, outputting what kind of token is about to be evaluated
 	// if the kind of the token is UNEXPECTED when next is called, next() will output that the token is 
@@ -104,8 +106,8 @@ public class Main
 	// major method
 	static void program()
 	{
-		Node node = new Node("program", currentParent);
-		currentParent = node;
+		//Node node = new Node("program", currentParent);
+		//currentParent = node;
 		
 		if(!unexpected)
 		{
@@ -168,8 +170,8 @@ public class Main
 	// calls statements()
 	static void body()
 	{
-		Node node = new Node("body", currentParent);
-		currentParent = node;
+		//Node node = new Node("body", currentParent);
+		//currentParent = node;
 		
 		if(expected("bool") || expected("int"))
 			declarations();
@@ -183,8 +185,8 @@ public class Main
 	// found
 	static void declarations()
 	{
-		Node node = new Node("declarations", currentParent);
-		currentParent = node;
+		//Node node = new Node("declarations", currentParent);
+		//currentParent = node;
 		
 		declaration();
 		while(!unexpected && (expected("bool") || expected("int")))
@@ -197,8 +199,8 @@ public class Main
 	// is called again
 	static void statements()
 	{
-		Node node = new Node("statements", currentParent);
-		currentParent = node;
+		//Node node = new Node("statements", currentParent);
+		//currentParent = node;
 		
 		statement();
 		while(!unexpected && expected(";"))
@@ -213,8 +215,8 @@ public class Main
 	// to be called, then match() an identifier and match() ";"
 	static void declaration()
 	{
-		Node node = new Node("declaration", currentParent);
-		currentParent = node;
+		//Node node = new Node("declaration", currentParent);
+		//currentParent = node;
 		
 		next();
 		if(!unexpected)
@@ -230,8 +232,8 @@ public class Main
 	// "print", call printStatement(), if none of these ecpectations are met the token is unexpected, which outputs an error
 	static void statement()
 	{
-		Node node = new Node("statement", currentParent);
-		currentParent = node;
+		//Node node = new Node("statement", currentParent);
+		//currentParent = node;
 		
 		if(expected("ID"))
 			assignmentStatement();
@@ -253,8 +255,8 @@ public class Main
 	// assignmentStatement() checks for an identifier, the ":=" symbol, and then calls expression()
 	static void assignmentStatement()
 	{
-		Node node = new Node("assignmentStatement", currentParent);
-		currentParent = node;
+		//Node node = new Node("assignmentStatement", currentParent);
+		//currentParent = node;
 		
 		match("ID", "assignmentStatement");
 		if(!unexpected)
@@ -270,8 +272,8 @@ public class Main
 	// satisfies expected(), then "else" is matched and body() is called, otherwise "fi" is matched
 	static void conditionalStatement()
 	{
-		Node node = new Node("conditionalStatement", currentParent);
-		currentParent = node;
+		//Node node = new Node("conditionalStatement", currentParent);
+		//currentParent = node;
 		
 		match("if", "conditionalStatement");
 		if(!unexpected)
@@ -298,8 +300,8 @@ public class Main
 	// checks for keyword "while", calls expression(), checks for "do", calls body(), checks for "od"
 	static void iterativeStatement()
 	{
-		Node node = new Node("iterativeStatement", currentParent);
-		currentParent = node;
+		//Node node = new Node("iterativeStatement", currentParent);
+		//currentParent = node;
 		
 		match("while", "iterativeStatement");
 		if(!unexpected)
@@ -322,8 +324,8 @@ public class Main
 	// checks for "print", calls expression()
 	static void printStatement()
 	{
-		Node node = new Node("printStatement", currentParent);
-		currentParent = node;
+		//Node node = new Node("printStatement", currentParent);
+		//currentParent = node;
 		
 		match("print", "printStatement");
 		if(!unexpected)
@@ -335,8 +337,8 @@ public class Main
 	// then simpleExpression() is called again
 	static void expression()
 	{
-		Node node = new Node("expression", currentParent);
-		currentParent = node;
+		//Node node = new Node("expression", currentParent);
+		//currentParent = node;
 		
 		simpleExpression();
 		if(!unexpected && relationalOperator())
@@ -348,10 +350,12 @@ public class Main
 	}
 	
 	// note: unexpected is checked before expression() is called so does not need to be called at first
+	// calls term(), checks for an additive operator which is matched if found, then calls term and continues
+	// this cycle as long as more additive operators are found
 	static void simpleExpression()
 	{
-		Node node = new Node("simpleExpression", currentParent);
-		currentParent = node;
+		//Node node = new Node("simpleExpression", currentParent);
+		//currentParent = node;
 		
 		term();
 		while(!unexpected && additiveOperator())
@@ -363,10 +367,11 @@ public class Main
 			
 	}
 	
+	// returns true if the kind of the currentToken object is a relational operator
 	static boolean relationalOperator()
 	{
-		Node node = new Node("relationalOperator", currentParent);
-		currentParent = node;
+		//Node node = new Node("relationalOperator", currentParent);
+		//currentParent = node;
 		
 		if(currentToken.kind.equals("<") || currentToken.kind.equals("=<") || currentToken.kind.equals("=") || 
 				currentToken.kind.equals("!=") || currentToken.kind.equals(">=") || currentToken.kind.equals(">"))
@@ -375,16 +380,19 @@ public class Main
 		return false;
 	}
 	
+	// used in expression(), simpleExpression(), and term() to match() an expected operator
+	// saves me the trouble of writing a long list of conditionals
 	static String getOperator()
 	{
 		return currentToken.kind;
 	}
 	
 	// note: unexpected is checked before expression() is called so does not need to be called at first
+	// calls factor() once, and then continues to do so as long as a multiplicative operator is found
 	static void term()
 	{
-		Node node = new Node("term", currentParent);
-		currentParent = node;
+		//Node node = new Node("term", currentParent);
+		//currentParent = node;
 		
 		factor();
 		while(!unexpected && multiplicativeOperator())
@@ -395,10 +403,11 @@ public class Main
 		}
 	}
 	
+	// returns true if the kind of the currentToken object is one of the additive operators
 	static boolean additiveOperator()
 	{
-		Node node = new Node("additiveOperator", currentParent);
-		currentParent = node;
+		//Node node = new Node("additiveOperator", currentParent);
+		//currentParent = node;
 		
 		if(currentToken.kind.equals("+") || currentToken.kind.equals("-") || currentToken.kind.equals("or"))
 			return true;
@@ -406,10 +415,12 @@ public class Main
 		return false;
 	}
 	
+	// first tests for a unary operator, then calls literal(), matches an identifier, or calls an expression
+	// depending on what expected returns, also sets unexpected to true if none of the expected tests return true
 	static void factor()
 	{
-		Node node = new Node("factor", currentParent);
-		currentParent = node;
+		//Node node = new Node("factor", currentParent);
+		//currentParent = node;
 		
 		if(expected("-") || expected("not"))
 			unaryOperator();
@@ -439,6 +450,8 @@ public class Main
 		}
 	}
 	
+	// if this is being called, it has already been verified that one of the unary operators is in use,
+	// this just checks which one to match against
 	static void unaryOperator()
 	{
 		if(expected("-"))
@@ -447,10 +460,11 @@ public class Main
 			match("not", "unaryOperator");
 	}
 	
+	// returns true if a multiplicative operator is found
 	static boolean multiplicativeOperator()
 	{
-		Node node = new Node("multiplicativeOperator", currentParent);
-		currentParent = node;
+		//Node node = new Node("multiplicativeOperator", currentParent);
+		//currentParent = node;
 		
 		if(expected("*") || expected("/") || expected("and"))
 			return true;
@@ -458,10 +472,11 @@ public class Main
 		return false;
 	}
 	
+	// factor() verifies that expected() is either a number, 'true', or 'false', this just tests which one to match
 	static void literal()
 	{
-		Node node = new Node("literal", currentParent);
-		currentParent = node;
+		//Node node = new Node("literal", currentParent);
+		//currentParent = node;
 		
 		if(expected("NUM"))
 			match("NUM", "literal");
@@ -471,6 +486,8 @@ public class Main
 			match("true", "literal");
 	}
 	
+	// this class encompasses all functionality for reading each character from the file until either a valid token is
+	// found or until it can be deemed that the current character or string of character is not a valid token
 	private static class Tokenizer
 	{
 		int currentChar;
@@ -793,6 +810,7 @@ public class Main
 		}
 	}
 	
+	// this class encompasses all the attributes of a potential token object
 	private static class TokenObject
 	{
 		int row;
